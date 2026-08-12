@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+  background-color: #0e1621;
+  color: #e9edf1;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3a4a transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #2a3a4a;
+  border-radius: 8px;
+}
+
+@keyframes typing-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-4px);
+  }
+}
+.typing-dot {
+  animation: typing-bounce 1.2s infinite;
+}
