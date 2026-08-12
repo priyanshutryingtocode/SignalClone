@@ -14,6 +14,17 @@ if you have time left).
 
 Mock OTP for registration: **123456** (see `app/core/config.py`, `MOCK_OTP`).
 
+## Seed demo data (recommended before a demo/review)
+
+```bash
+python -m app.seed
+```
+
+Creates 4 users (`alice`, `bob`, `carol`, `dave`, all password `password123`),
+a DM between alice and bob, and a "Weekend Trip" group with alice as admin —
+each pre-populated with a short realistic message history. Safe to re-run;
+it skips anything that already exists.
+
 ## What's implemented
 
 - **Auth**: register (phone + username + mock OTP), login (JWT), `/auth/me`.
