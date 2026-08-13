@@ -2,7 +2,28 @@ import Icon from "./Icon";
 import { Message } from "@/lib/types";
 
 function formatTime(iso: string): string {
-  const date = new Date(iso);
+  if (!iso) {
+    return "";
+  }
+
+  /*
+   * Backend timestamps are stored/sent as UTC.
+   *
+   * If the backend sends:
+   *   2026-08-14T02:33:00
+   *
+   * it is timezone-less, so explicitly treat it as UTC.
+   *
+   * If it already contains Z or a timezone offset,
+   * don't modify it.
+   */
+  const hasTimezone =
+    iso.endsWith("Z") ||
+    /[+-]\d{2}:\d{2}$/.test(iso);
+
+  const utcIso = hasTimezone ? iso : `${iso}Z`;
+
+  const date = new Date(utcIso);
 
   if (Number.isNaN(date.getTime())) {
     return "";
@@ -110,9 +131,7 @@ export default function MessageBubble({
                 : "text-signal-subtext"
             }`}
           >
-            {formatTime(
-              message.created_at
-            )}
+            {formatTime(message.created_at)}
           </span>
 
           {own && (
