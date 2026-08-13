@@ -21,7 +21,6 @@ A Signal-inspired real-time messaging application built with **Next.js**, **Reac
 - Read receipts
 - Typing indicators
 - Online/offline presence
-- Optimistic message rendering
 - WebSocket reconnect handling
 - Messages persisted in SQLite
 
@@ -29,7 +28,6 @@ A Signal-inspired real-time messaging application built with **Next.js**, **Reac
 - Recent-conversation sorting
 - Last-message previews
 - Unread message counts
-- Search users and conversations
 - Create direct conversations
 - Create groups
 - Group member management
@@ -40,7 +38,6 @@ A Signal-inspired real-time messaging application built with **Next.js**, **Reac
 - Two-pane desktop messaging layout
 - Message bubbles
 - Conversation sidebar
-- Search
 - Modals
 - Toast notifications
 - Settings placeholders
