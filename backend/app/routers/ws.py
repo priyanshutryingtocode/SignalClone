@@ -18,10 +18,11 @@ def _conversation_peer_ids(
     user_id: str,
 ) -> list[str]:
     """
-    All users who share at least one conversation with this user.
+    Get all users who share at least one conversation
+    with this user.
 
-    Used to decide who should hear this user's
-    presence changes.
+    Used to determine who should receive presence
+    updates.
     """
 
     my_conv_ids = select(
@@ -63,42 +64,53 @@ async def websocket_endpoint(
     )
 
     if user is None:
-        await websocket.close(
-            code=4401
-        )
+        await websocket.close(code=4401)
         db.close()
         return
 
+    # Check whether the user already has another
+    # active WebSocket connection.
+    was_online = manager.is_online(user.id)
+
+    # Add this specific browser/tab connection.
     await manager.connect(
         user.id,
         websocket,
     )
 
-    user.is_online = True
-    user.last_seen_at = datetime.now(
-        timezone.utc
-    )
+    # Only send an "online" presence event when this
+    # is the user's first active connection.
+    if not was_online:
+        user.is_online = True
+        user.last_seen_at = datetime.now(timezone.utc)
 
-    db.commit()
+        db.commit()
 
-    peers = _conversation_peer_ids(
-        db,
-        user.id,
-    )
+        peers = _conversation_peer_ids(
+            db,
+            user.id,
+        )
 
-    presence_event = {
-        "type": "presence.update",
-        "payload": {
-            "user_id": user.id,
-            "is_online": True,
-            "last_seen_at": user.last_seen_at.isoformat(),
-        },
-    }
+        presence_event = {
+            "type": "presence.update",
+            "payload": {
+                "user_id": user.id,
+                "is_online": True,
+                "last_seen_at": user.last_seen_at.isoformat(),
+            },
+        }
 
-    await manager.broadcast_to_users(
-        peers,
-        presence_event,
-    )
+        await manager.broadcast_to_users(
+            peers,
+            presence_event,
+        )
+
+    else:
+        # We still need peers for the disconnect logic below.
+        peers = _conversation_peer_ids(
+            db,
+            user.id,
+        )
 
     try:
         while True:
@@ -148,27 +160,34 @@ async def websocket_endpoint(
         pass
 
     finally:
-        manager.disconnect(user.id)
-
-        user.is_online = False
-        user.last_seen_at = datetime.now(
-            timezone.utc
+        # Remove ONLY this particular tab's connection.
+        manager.disconnect(
+            user.id,
+            websocket,
         )
 
-        db.commit()
+        # Only mark the user offline if there are no
+        # remaining tabs/windows/devices connected.
+        if not manager.is_online(user.id):
+            user.is_online = False
+            user.last_seen_at = datetime.now(
+                timezone.utc
+            )
 
-        offline_event = {
-            "type": "presence.update",
-            "payload": {
-                "user_id": user.id,
-                "is_online": False,
-                "last_seen_at": user.last_seen_at.isoformat(),
-            },
-        }
+            db.commit()
 
-        await manager.broadcast_to_users(
-            peers,
-            offline_event,
-        )
+            offline_event = {
+                "type": "presence.update",
+                "payload": {
+                    "user_id": user.id,
+                    "is_online": False,
+                    "last_seen_at": user.last_seen_at.isoformat(),
+                },
+            }
+
+            await manager.broadcast_to_users(
+                peers,
+                offline_event,
+            )
 
         db.close()

@@ -15,7 +15,7 @@ export default function AuthRedirect() {
   useEffect(() => {
     (async () => {
       const token = typeof window !== "undefined" ? localStorage.getItem("signal_token") : null;
-      if (!token) return;
+      if (!token) router.replace("/");
       await init();
       const stillValid = typeof window !== "undefined" ? localStorage.getItem("signal_token") : null;
       if (stillValid) router.replace("/chat");
