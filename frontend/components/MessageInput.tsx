@@ -45,12 +45,12 @@ export default function MessageInput({ conversationId }: { conversationId: strin
           }
         }}
         placeholder="Type a message"
-        className="max-h-32 flex-1 resize-none rounded-xl border border-signal-border bg-signal-panelAlt px-3 py-2 text-sm text-signal-text outline-none focus:border-signal-accent"
+        className="max-h-32 flex-1 resize-none rounded-xl border border-signal-border bg-signal-panelAlt px-3 py-2 text-sm text-signal-text outline-none focus-visible:ring-2 focus-visible:ring-signal-accent/40 focus-visible:ring-offset-2"
       />
       <button
         onClick={handleSend}
         disabled={!value.trim()}
-        className="rounded-full bg-signal-accent px-4 py-2 text-sm font-medium text-white hover:bg-signal-accentHover disabled:opacity-40"
+        className="rounded-full bg-signal-accent px-4 py-2 text-sm font-medium text-white hover:bg-signal-accentHover hover:transition-colors duration-150 disabled:opacity-40"
       >
         Send
       </button>

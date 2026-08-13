@@ -25,7 +25,7 @@ export default function Avatar({
     .toUpperCase();
 
   return (
-    <div className="relative shrink-0" style={{ width: size, height: size }}>
+    <div className="relative shrink-0 hover:scale-103 transition-transform duration-150" style={{ width: size, height: size }}>
       <div
         className="flex h-full w-full items-center justify-center rounded-full font-medium text-white"
         style={{ backgroundColor: colorFor(id), fontSize: size * 0.38 }}

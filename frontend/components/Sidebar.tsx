@@ -105,7 +105,7 @@ export default function Sidebar() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search conversations"
-          className="w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-1.5 text-sm text-signal-text outline-none focus:border-signal-accent"
+          className="w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-1.5 text-sm text-signal-text outline-none focus-visible:ring-2 focus-visible:ring-signal-accent/40 focus-visible:ring-offset-2"
         />
       </div>
 
@@ -130,7 +130,7 @@ export default function Sidebar() {
             <button
               key={conv.id}
               onClick={() => router.push(`/chat/${conv.id}`)}
-              className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-signal-panelAlt ${
+              className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-signal-panelAlt hover:shadow-sm ${
                 activeId === conv.id ? "bg-signal-panelAlt" : ""
               }`}
             >

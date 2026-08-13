@@ -10,6 +10,8 @@ const config: Config = {
           panel: "#1b2735",
           panelAlt: "#212f3d",
           border: "#2a3a4a",
+          borderLight: "#3a4a5a",
+          panelDark: "#141b22",
           text: "#e9edf1",
           subtext: "#8393a3",
           accent: "#2c6bed",

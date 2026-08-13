@@ -27,7 +27,7 @@ export default function MessageBubble({ message, isOwn, senderName }: { message:
       <div
         className={`max-w-[65%] rounded-2xl px-3 py-2 shadow-sm ${
           isOwn ? "rounded-br-sm bg-signal-bubbleOut text-white" : "rounded-bl-sm bg-signal-bubbleIn text-signal-text"
-        }`}
+        } hover:shadow-sm transition-shadow duration-150`}
       >
         {!isOwn && senderName && <p className="mb-0.5 text-xs font-medium text-signal-accent">{senderName}</p>}
         <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>

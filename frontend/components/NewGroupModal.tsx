@@ -50,9 +50,9 @@ export default function NewGroupModal({ onClose, onOpenConversation }: { onClose
 
   return (
     <Modal title="New group" onClose={onClose}>
-      <input
+<input
         autoFocus
-        className="mb-3 w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-2 text-signal-text outline-none focus:border-signal-accent"
+        className="mb-3 w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-2 text-signal-text outline-none focus-visible:ring-2 focus-visible:ring-signal-accent/40 focus-visible:ring-offset-2"
         placeholder="Group name"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -74,8 +74,8 @@ export default function NewGroupModal({ onClose, onOpenConversation }: { onClose
         </div>
       )}
 
-      <input
-        className="mb-3 w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-2 text-signal-text outline-none focus:border-signal-accent"
+<input
+        className="mb-3 w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-2 text-signal-text outline-none focus-visible:ring-2 focus-visible:ring-signal-accent/40 focus-visible:ring-offset-2"
         placeholder="Add members…"
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
@@ -88,7 +88,7 @@ export default function NewGroupModal({ onClose, onOpenConversation }: { onClose
             <button
               key={u.id}
               onClick={() => toggle(u)}
-              className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-signal-panelAlt ${
+              className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-signal-panelAlt hover:transition-colors duration-150 ${
                 isSelected ? "bg-signal-panelAlt" : ""
               }`}
             >
@@ -105,7 +105,7 @@ export default function NewGroupModal({ onClose, onOpenConversation }: { onClose
 
       <button
         onClick={handleCreate}
-        className="w-full rounded-lg bg-signal-accent py-2 font-medium text-white hover:bg-signal-accentHover"
+        className="w-full rounded-lg bg-signal-accent py-2 font-medium text-white hover:bg-signal-accentHover hover:transition-colors duration-150"
       >
         Create group
       </button>

@@ -7,6 +7,7 @@ body {
   height: 100%;
   background-color: #0e1621;
   color: #e9edf1;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -22,6 +23,11 @@ body {
   border-radius: 8px;
 }
 
+*:focus-visible {
+  outline: 2px solid #2c6bed;
+  outline-offset: 2px;
+}
+
 @keyframes typing-bounce {
   0%,
   80%,
@@ -34,4 +40,29 @@ body {
 }
 .typing-dot {
   animation: typing-bounce 1.2s infinite;
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+.panel-shadow {
+  boxShadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1), 0 1px 3px 1px rgba(0, 0, 0, 0.05);
+}
+.panel-shadow-lg {
+  boxShadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+.css-transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }

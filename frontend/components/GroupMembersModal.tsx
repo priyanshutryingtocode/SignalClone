@@ -79,7 +79,7 @@ export default function GroupMembersModal({ conversation, onClose }: { conversat
       {isAdmin && (
         <>
           <input
-            className="mb-2 w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-2 text-sm text-signal-text outline-none focus:border-signal-accent"
+            className="mb-2 w-full rounded-lg border border-signal-border bg-signal-panelAlt px-3 py-2 text-sm text-signal-text outline-none focus-visible:ring-2 focus-visible:ring-signal-accent/40 focus-visible:ring-offset-2"
             placeholder="Add a member…"
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
@@ -89,7 +89,7 @@ export default function GroupMembersModal({ conversation, onClose }: { conversat
               <button
                 key={u.id}
                 onClick={() => addMember(u)}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-signal-panelAlt"
+                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-signal-panelAlt hover:transition-colors duration-150"
               >
                 <Avatar id={u.id} name={u.display_name} size={32} />
                 <p className="text-sm text-signal-text">{u.display_name}</p>
