@@ -422,7 +422,7 @@ The database consists of six core tables:
                           │ status             │
                           │ updated_at         │
                           └────────────────────┘
-
+```
 
 
 ## API Overview
