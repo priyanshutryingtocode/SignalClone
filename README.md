@@ -347,6 +347,83 @@ MOCK_OTP=123456
 
 Never commit real production secrets.
 
+## Database Schema
+
+The application uses **SQLite** with **SQLAlchemy ORM** for persistent storage.
+
+The database consists of six core tables:
+
+```text
+┌──────────────────────┐
+│        users         │
+├──────────────────────┤
+│ id (PK)              │
+│ phone_number (UNIQUE)│
+│ username (UNIQUE)    │
+│ display_name         │
+│ avatar_url           │
+│ password_hash        │
+│ public_key           │
+│ created_at           │
+│ last_seen_at         │
+│ is_online            │
+└──────────┬───────────┘
+           │
+           │
+     ┌─────┴─────────────────────┐
+     │                           │
+     ▼                           ▼
+┌──────────────────┐     ┌────────────────────────┐
+│    contacts      │     │ conversation_participants│
+├──────────────────┤     ├────────────────────────┤
+│ id (PK)          │     │ id (PK)                │
+│ owner_id (FK)    │     │ conversation_id (FK)   │
+│ contact_user_id  │     │ user_id (FK)            │
+│ nickname         │     │ role                    │
+│ created_at       │     │ joined_at               │
+└──────────────────┘     │ last_read_message_id   │
+                         │ is_muted                │
+                         └───────────┬────────────┘
+                                     │
+                                     ▼
+                          ┌────────────────────┐
+                          │   conversations    │
+                          ├────────────────────┤
+                          │ id (PK)            │
+                          │ type               │
+                          │ name               │
+                          │ avatar_url         │
+                          │ created_by (FK)    │
+                          │ created_at         │
+                          └─────────┬──────────┘
+                                    │
+                                    ▼
+                          ┌────────────────────┐
+                          │      messages      │
+                          ├────────────────────┤
+                          │ id (PK)            │
+                          │ conversation_id FK │
+                          │ sender_id (FK)     │
+                          │ content_ciphertext │
+                          │ content_type       │
+                          │ reply_to_message_id│
+                          │ created_at         │
+                          │ edited_at          │
+                          │ deleted_at         │
+                          └─────────┬──────────┘
+                                    │
+                                    ▼
+                          ┌────────────────────┐
+                          │   message_status   │
+                          ├────────────────────┤
+                          │ id (PK)            │
+                          │ message_id (FK)    │
+                          │ user_id (FK)       │
+                          │ status             │
+                          │ updated_at         │
+                          └────────────────────┘
+
+
 
 ## API Overview
 
