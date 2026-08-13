@@ -8,17 +8,14 @@ import { useStore } from "@/lib/store";
 
 const FEATURES = [
   {
-    icon: "✦",
     title: "Real-time messaging",
     body: "Messages arrive instantly, with delivery and read receipts so you always know where a conversation stands.",
   },
   {
-    icon: "◉",
     title: "Group conversations",
     body: "Create groups, add or remove members, and manage conversations in one clean thread.",
   },
   {
-    icon: "⌁",
     title: "Private by design",
     body: "A real-time messaging experience inspired by Signal Desktop, built around a clean and focused interface.",
   },
@@ -100,11 +97,8 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 lg:px-8">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-signal-accent shadow-lg shadow-signal-accent/20">
-              <span className="text-lg font-bold text-white">
-                S
-              </span>
-
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl shadow-lg shadow-signal-accent/20">
+              <img src="/icon.png" alt="logo" className="h-5 w-5" />
               <div className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-signal-bg bg-emerald-400" />
             </div>
 
@@ -319,7 +313,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-7 text-center text-xs text-signal-subtext sm:flex-row sm:text-left lg:px-8">
           <div className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-signal-accent/15 text-[10px] font-bold text-signal-accent">
-              S
+             <img src="/icon.png" alt="logo" className="h-5 w-5" />
             </div>
 
             <span>
