@@ -317,7 +317,7 @@ export default function LandingPage() {
             </div>
 
             <span>
-              Signal Clone
+              Signal Clone - Made by Priyanshu Srivastava
             </span>
           </div>
 
