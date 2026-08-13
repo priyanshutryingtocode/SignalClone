@@ -1,18 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
+/**
+ * Intentionally does not redirect from the landing page.
+ * Authentication is checked only when the user clicks Sign in.
+ */
 export default function AuthRedirect() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("signal_token");
-
-    if (token) {
-      router.replace("/chat");
-    }
-  }, [router]);
-
   return null;
 }

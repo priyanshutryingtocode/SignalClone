@@ -42,10 +42,59 @@ export interface Conversation {
 }
 
 export type WSEvent =
-  | { type: "message.new"; payload: Message }
-  | { type: "message.read"; payload: { message_id: string; user_id: string; conversation_id: string } }
-  | { type: "typing.start"; payload: { conversation_id: string; user_id: string } }
-  | { type: "typing.stop"; payload: { conversation_id: string; user_id: string } }
-  | { type: "presence.update"; payload: { user_id: string; is_online: boolean; last_seen_at: string } }
-  | { type: "group.member_added"; payload: { conversation_id: string; user_id: string } }
-  | { type: "group.member_removed"; payload: { conversation_id: string; user_id: string } };
+  | {
+      type: "message.new";
+      payload: Message;
+    }
+  | {
+      type: "message.delivered";
+      payload: {
+        message_id: string;
+        conversation_id: string;
+        user_ids: string[];
+      };
+    }
+  | {
+      type: "message.read";
+      payload: {
+        message_id: string;
+        user_id: string;
+        conversation_id: string;
+      };
+    }
+  | {
+      type: "typing.start";
+      payload: {
+        conversation_id: string;
+        user_id: string;
+      };
+    }
+  | {
+      type: "typing.stop";
+      payload: {
+        conversation_id: string;
+        user_id: string;
+      };
+    }
+  | {
+      type: "presence.update";
+      payload: {
+        user_id: string;
+        is_online: boolean;
+        last_seen_at: string;
+      };
+    }
+  | {
+      type: "group.member_added";
+      payload: {
+        conversation_id: string;
+        user_id: string;
+      };
+    }
+  | {
+      type: "group.member_removed";
+      payload: {
+        conversation_id: string;
+        user_id: string;
+      };
+    };
