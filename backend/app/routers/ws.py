@@ -1,30 +1,17 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 from sqlalchemy import select
 
-from app.db.session import SessionLocal
-from app.core.deps import get_user_from_token
-from app.ws_manager import manager
 from app import models
-
+from app.core.deps import get_user_from_token
+from app.db.session import SessionLocal
+from app.ws_manager import manager
 
 router = APIRouter(tags=["ws"])
 
 
-def _conversation_peer_ids(
-    db: Session,
-    user_id: str,
-) -> list[str]:
-    """
-    Get all users who share at least one conversation
-    with this user.
-
-    Used to determine who should receive presence
-    updates.
-    """
-
+def _conversation_peer_ids(db, user_id: str) -> list[str]:
     my_conv_ids = select(
         models.ConversationParticipant.conversation_id
     ).where(
@@ -32,23 +19,15 @@ def _conversation_peer_ids(
     )
 
     rows = (
-        db.query(
-            models.ConversationParticipant.user_id
-        )
+        db.query(models.ConversationParticipant.user_id)
         .filter(
-            models.ConversationParticipant.conversation_id.in_(
-                my_conv_ids
-            )
+            models.ConversationParticipant.conversation_id.in_(my_conv_ids)
         )
         .distinct()
         .all()
     )
 
-    return [
-        r[0]
-        for r in rows
-        if r[0] != user_id
-    ]
+    return [row[0] for row in rows if row[0] != user_id]
 
 
 @router.websocket("/ws")
@@ -57,137 +36,101 @@ async def websocket_endpoint(
     token: str = Query(...),
 ):
     db = SessionLocal()
-
-    user = get_user_from_token(
-        token,
-        db,
-    )
+    user = get_user_from_token(token, db)
 
     if user is None:
         await websocket.close(code=4401)
         db.close()
         return
 
-    # Check whether the user already has another
-    # active WebSocket connection.
     was_online = manager.is_online(user.id)
+    await manager.connect(user.id, websocket)
+    peers = _conversation_peer_ids(db, user.id)
 
-    # Add this specific browser/tab connection.
-    await manager.connect(
-        user.id,
-        websocket,
-    )
-
-    # Only send an "online" presence event when this
-    # is the user's first active connection.
     if not was_online:
         user.is_online = True
         user.last_seen_at = datetime.now(timezone.utc)
-
         db.commit()
-
-        peers = _conversation_peer_ids(
-            db,
-            user.id,
-        )
-
-        presence_event = {
-            "type": "presence.update",
-            "payload": {
-                "user_id": user.id,
-                "is_online": True,
-                "last_seen_at": user.last_seen_at.isoformat(),
-            },
-        }
 
         await manager.broadcast_to_users(
             peers,
-            presence_event,
-        )
-
-    else:
-        # We still need peers for the disconnect logic below.
-        peers = _conversation_peer_ids(
-            db,
-            user.id,
+            {
+                "type": "presence.update",
+                "payload": {
+                    "user_id": user.id,
+                    "is_online": True,
+                    "last_seen_at": user.last_seen_at.isoformat(),
+                },
+            },
         )
 
     try:
         while True:
             data = await websocket.receive_json()
-
             event_type = data.get("type")
 
-            if event_type in (
-                "typing.start",
-                "typing.stop",
-            ):
-                conversation_id = (
-                    data.get("payload", {})
-                    .get("conversation_id")
+            if event_type not in {"typing.start", "typing.stop"}:
+                continue
+
+            payload = data.get("payload") or {}
+            conversation_id = payload.get("conversation_id")
+            if not conversation_id:
+                continue
+
+            # Do not allow a user to emit typing events for a conversation
+            # they are not a member of.
+            is_member = (
+                db.query(models.ConversationParticipant.id)
+                .filter(
+                    models.ConversationParticipant.conversation_id == conversation_id,
+                    models.ConversationParticipant.user_id == user.id,
                 )
+                .first()
+            )
+            if not is_member:
+                continue
 
-                if conversation_id:
-                    members = (
-                        db.query(
-                            models.ConversationParticipant.user_id
-                        )
-                        .filter(
-                            models.ConversationParticipant.conversation_id
-                            == conversation_id
-                        )
-                        .all()
-                    )
+            member_rows = (
+                db.query(models.ConversationParticipant.user_id)
+                .filter(
+                    models.ConversationParticipant.conversation_id == conversation_id
+                )
+                .all()
+            )
+            recipient_ids = [row[0] for row in member_rows if row[0] != user.id]
 
-                    member_ids = [
-                        m[0]
-                        for m in members
-                        if m[0] != user.id
-                    ]
-
-                    await manager.broadcast_to_users(
-                        member_ids,
-                        {
-                            "type": event_type,
-                            "payload": {
-                                "conversation_id": conversation_id,
-                                "user_id": user.id,
-                            },
-                        },
-                    )
+            await manager.broadcast_to_users(
+                recipient_ids,
+                {
+                    "type": event_type,
+                    "payload": {
+                        "conversation_id": conversation_id,
+                        "user_id": user.id,
+                    },
+                },
+            )
 
     except WebSocketDisconnect:
         pass
-
     finally:
-        # Remove ONLY this particular tab's connection.
-        manager.disconnect(
-            user.id,
-            websocket,
-        )
+        manager.disconnect(user.id, websocket)
 
-        # Only mark the user offline if there are no
-        # remaining tabs/windows/devices connected.
+        # Only the final tab/device going away makes the user offline.
         if not manager.is_online(user.id):
             user.is_online = False
-            user.last_seen_at = datetime.now(
-                timezone.utc
-            )
-
+            user.last_seen_at = datetime.now(timezone.utc)
             db.commit()
-
-            offline_event = {
-                "type": "presence.update",
-                "payload": {
-                    "user_id": user.id,
-                    "is_online": False,
-                    "last_seen_at": user.last_seen_at.isoformat(),
-                },
-            }
 
             await manager.broadcast_to_users(
                 peers,
-                offline_event,
+                {
+                    "type": "presence.update",
+                    "payload": {
+                        "user_id": user.id,
+                        "is_online": False,
+                        "last_seen_at": user.last_seen_at.isoformat(),
+                    },
+                },
             )
 
         db.close()

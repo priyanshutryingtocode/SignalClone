@@ -1,41 +1,90 @@
+import Icon from "./Icon";
 import { Message } from "@/lib/types";
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function StatusTicks({ status }: { status: Message["status"] }) {
-  if (status === "sending") return <span className="text-[11px] text-white/60">🕐</span>;
-  if (status === "sent") return <span className="text-[11px] text-white/60">✓</span>;
-  if (status === "delivered") return <span className="text-[11px] text-white/60">✓✓</span>;
-  return <span className="text-[11px] text-sky-300">✓✓</span>; // read
+  if (status === "sending") {
+    return <Icon name="loader" size={12} />;
+  }
+  if (status === "sent") {
+    return <Icon name="check" size={13} />;
+  }
+  if (status === "delivered") {
+    return <Icon name="checks" size={13} />;
+  }
+  return <Icon name="checks" size={13} />;
 }
 
-export default function MessageBubble({ message, isOwn, senderName }: { message: Message; isOwn: boolean; senderName?: string }) {
+export default function MessageBubble({
+  message,
+  isOwn,
+  senderName,
+  isFirstInGroup = true,
+  isLastInGroup = true,
+}: {
+  message: Message;
+  isOwn: boolean;
+  senderName?: string;
+  isFirstInGroup?: boolean;
+  isLastInGroup?: boolean;
+}) {
   if (message.content_type === "system") {
     return (
-      <div className="my-2 flex justify-center">
-        <span className="rounded-full bg-signal-panelAlt px-3 py-1 text-xs text-signal-subtext">
+      <div className="my-3 flex justify-center text-center">
+        <span className="rounded-full bg-signal-panel px-3 py-1 text-[11px] text-signal-subtext">
           {message.content}
         </span>
       </div>
     );
   }
 
+  const own = isOwn;
+  const bubbleRadius = own
+    ? `${isFirstInGroup ? "rounded-t-[18px]" : "rounded-t-md"} ${isLastInGroup ? "rounded-br-[4px]" : "rounded-br-md"} rounded-bl-[18px]`
+    : `${isFirstInGroup ? "rounded-t-[18px]" : "rounded-t-md"} ${isLastInGroup ? "rounded-bl-[4px]" : "rounded-bl-md"} rounded-br-[18px]`;
+
   return (
-    <div className={`flex ${isOwn ? "justify-end" : "justify-start"} px-4 py-0.5`}>
+    <div className={`flex ${own ? "justify-end" : "justify-start"} ${isFirstInGroup ? "mt-2" : "mt-0.5"}`}>
       <div
-        className={`max-w-[65%] rounded-2xl px-3 py-2 shadow-sm ${
-          isOwn ? "rounded-br-sm bg-signal-bubbleOut text-white" : "rounded-bl-sm bg-signal-bubbleIn text-signal-text"
-        } hover:shadow-sm transition-shadow duration-150`}
+        className={`max-w-[min(72%,520px)] px-3 py-2 text-sm leading-5 shadow-sm ${
+          own
+            ? "bg-signal-bubbleOut text-white"
+            : "bg-signal-bubbleIn text-signal-text"
+        } ${bubbleRadius}`}
       >
-        {!isOwn && senderName && <p className="mb-0.5 text-xs font-medium text-signal-accent">{senderName}</p>}
-        <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>
-        <div className={`mt-1 flex items-center justify-end gap-1 ${isOwn ? "" : "text-signal-subtext"}`}>
-          <span className={`text-[11px] ${isOwn ? "text-white/60" : "text-signal-subtext"}`}>
+        {!own && senderName && isFirstInGroup && (
+          <p className="mb-0.5 text-xs font-medium text-signal-accent">
+            {senderName}
+          </p>
+        )}
+
+        <div className="flex items-end gap-2">
+          <p className="min-w-0 flex-1 whitespace-pre-wrap break-words">
+            {message.content}
+          </p>
+          <span
+            className={`shrink-0 self-end text-[10px] leading-3 ${
+              own ? "text-white/60" : "text-signal-subtext"
+            }`}
+          >
             {formatTime(message.created_at)}
           </span>
-          {isOwn && <StatusTicks status={message.status} />}
+          {own && (
+            <span
+              className={`shrink-0 self-end ${
+                message.status === "read" ? "text-blue-200" : "text-white/60"
+              }`}
+              aria-label={message.status}
+            >
+              <StatusTicks status={message.status} />
+            </span>
+          )}
         </div>
       </div>
     </div>
