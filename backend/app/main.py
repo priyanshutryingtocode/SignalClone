@@ -1,22 +1,48 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.base import Base
 from app.db.session import engine
-from app import models  # noqa: F401 ensures models are registered before create_all
-from app.routers import auth, users, contacts, conversations, messages, ws
+from app import models
+from app.routers import (
+    auth,
+    users,
+    contacts,
+    conversations,
+    messages,
+    ws,
+)
 
-Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Signal Clone API")
+Base.metadata.create_all(
+    bind=engine
+)
+
+
+app = FastAPI(
+    title="Signal Clone API"
+)
+
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:3000"
+)
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        FRONTEND_URL,
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(auth.router)
 app.include_router(users.router)
