@@ -2,22 +2,37 @@ import Icon from "./Icon";
 import { Message } from "@/lib/types";
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString([], {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
     hour: "2-digit",
     minute: "2-digit",
-  });
+    hour12: true,
+  }).format(date);
 }
 
-function StatusTicks({ status }: { status: Message["status"] }) {
+function StatusTicks({
+  status,
+}: {
+  status: Message["status"];
+}) {
   if (status === "sending") {
     return <Icon name="loader" size={12} />;
   }
+
   if (status === "sent") {
     return <Icon name="check" size={13} />;
   }
+
   if (status === "delivered") {
     return <Icon name="checks" size={13} />;
   }
+
   return <Icon name="checks" size={13} />;
 }
 
@@ -45,12 +60,29 @@ export default function MessageBubble({
   }
 
   const own = isOwn;
+
   const bubbleRadius = own
-    ? `${isFirstInGroup ? "rounded-t-[18px]" : "rounded-t-md"} ${isLastInGroup ? "rounded-br-[4px]" : "rounded-br-md"} rounded-bl-[18px]`
-    : `${isFirstInGroup ? "rounded-t-[18px]" : "rounded-t-md"} ${isLastInGroup ? "rounded-bl-[4px]" : "rounded-bl-md"} rounded-br-[18px]`;
+    ? `${isFirstInGroup ? "rounded-t-[18px]" : "rounded-t-md"} ${
+        isLastInGroup
+          ? "rounded-br-[4px]"
+          : "rounded-br-md"
+      } rounded-bl-[18px]`
+    : `${isFirstInGroup ? "rounded-t-[18px]" : "rounded-t-md"} ${
+        isLastInGroup
+          ? "rounded-bl-[4px]"
+          : "rounded-bl-md"
+      } rounded-br-[18px]`;
 
   return (
-    <div className={`flex ${own ? "justify-end" : "justify-start"} ${isFirstInGroup ? "mt-2" : "mt-0.5"}`}>
+    <div
+      className={`flex ${
+        own ? "justify-end" : "justify-start"
+      } ${
+        isFirstInGroup
+          ? "mt-2"
+          : "mt-0.5"
+      }`}
+    >
       <div
         className={`max-w-[min(72%,520px)] px-3 py-2 text-sm leading-5 shadow-sm ${
           own
@@ -58,31 +90,43 @@ export default function MessageBubble({
             : "bg-signal-bubbleIn text-signal-text"
         } ${bubbleRadius}`}
       >
-        {!own && senderName && isFirstInGroup && (
-          <p className="mb-0.5 text-xs font-medium text-signal-accent">
-            {senderName}
-          </p>
-        )}
+        {!own &&
+          senderName &&
+          isFirstInGroup && (
+            <p className="mb-0.5 text-xs font-medium text-signal-accent">
+              {senderName}
+            </p>
+          )}
 
         <div className="flex items-end gap-2">
           <p className="min-w-0 flex-1 whitespace-pre-wrap break-words">
             {message.content}
           </p>
+
           <span
             className={`shrink-0 self-end text-[10px] leading-3 ${
-              own ? "text-white/60" : "text-signal-subtext"
+              own
+                ? "text-white/60"
+                : "text-signal-subtext"
             }`}
           >
-            {formatTime(message.created_at)}
+            {formatTime(
+              message.created_at
+            )}
           </span>
+
           {own && (
             <span
               className={`shrink-0 self-end ${
-                message.status === "read" ? "text-blue-200" : "text-white/60"
+                message.status === "read"
+                  ? "text-blue-200"
+                  : "text-white/60"
               }`}
               aria-label={message.status}
             >
-              <StatusTicks status={message.status} />
+              <StatusTicks
+                status={message.status}
+              />
             </span>
           )}
         </div>
